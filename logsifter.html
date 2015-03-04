@@ -2,6 +2,7 @@
 <html ng-app>
 <head lang="en">
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -14,50 +15,41 @@
   <title>Log Sifter</title>
 </head>
 <body class="container-fluid">
-  <input type="file" id="inputfile"/>
+  <header>
+    <h1>logSifter</h1>
+  </header>
+  <div id="logWindow">
+
+  </div>
+  <footer>
+    <input type="file" id="inputfile"/>
+  </footer>
+
 </body>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script type="text/javascript">
-
-(function() {
-  var app = angular.module('logSifter', []);
-
-
-
-})();
-
-
-
-
-
-
-
-
+var print = function(output){
+  console.log(output);
+};
+var getEl = function(el) {
+  return document.getElementById(el);
+};
+//var logList = [];
 
 function readSingleFile(evt) {
   var f = evt.target.files[0];
-
   if (f) {
     var r = new FileReader();
     r.onload = function(e) {
       var contents = e.target.result;
       //alert( "Got the file.n" + "name: " + f.name + "n"+"type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents.substr(1, contents.indexOf("n")));
-      console.log(contents);
+      var separatedLogList = contents.split("\n");
+      for (var i = 0; i < separatedLogList.length; i++) {
+        var tempLog = document.createElement("span");
+        tempLog.innerHTML = separatedLogList[i] + "<br/>";
+        getEl("logWindow").appendChild(tempLog);
+      }
   };
   r.readAsText(f);
   } else {
