@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style media="screen" type="text/css">
+  html {
+    box-sizing: border-box;
+  }
 
-  <!-- jQuery library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
 
-  <!-- Latest compiled JavaScript -->
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  <!-- bootstrap file inputs-->
-  <script src="http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js"></script>
-  <title>Log Sifter</title>
+  * {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+</style>
+
+<script src="http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js"></script>
+<title>Log Sifter</title>
 </head>
 <body class="container-fluid">
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="#">logSifter</a>
-        <input type="file" id="inputfile"/>
-      </div>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">logSifter</a>
+      <input type="file" id="inputfile"/>
     </div>
-  </nav>
+  </div>
+</nav>
 
 <footer>
 
@@ -35,39 +40,39 @@
 
 <script type="text/javascript">
 var print = function(output){
-  console.log(output);
+console.log(output);
 };
 var getEl = function(el) {
-  return document.getElementById(el);
+return document.getElementById(el);
 };
 //var logList = [];
 
 function readSingleFile(evt) {
-  var f = evt.target.files[0];
-  if (f) {
-    var r = new FileReader();
-    r.onload = function(e) {
-      var contents = e.target.result;
-      //alert( "Got the file.n" + "name: " + f.name + "n"+"type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents.substr(1, contents.indexOf("n")));
-      var separatedLogList = contents.split("\n");
-      for (var i = 0; i < separatedLogList.length; i++) {
-        var tempLog = document.createElement("span");
-        tempLog.innerHTML = separatedLogList[i] + "<br/>";
-        getEl("logWindow").appendChild(tempLog);
-      }
-    };
-    r.readAsText(f);
-  } else {
-    alert("Failed to load file");
-  }
+var f = evt.target.files[0];
+if (f) {
+  var r = new FileReader();
+  r.onload = function(e) {
+    var contents = e.target.result;
+    //alert( "Got the file.n" + "name: " + f.name + "n"+"type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents.substr(1, contents.indexOf("n")));
+    var separatedLogList = contents.split("\n");
+    for (var i = 0; i < separatedLogList.length; i++) {
+      var tempLog = document.createElement("span");
+      tempLog.innerHTML = separatedLogList[i] + "<br/>";
+      getEl("logWindow").appendChild(tempLog);
+    }
+  };
+  r.readAsText(f);
+} else {
+  alert("Failed to load file");
+}
 }
 
 
 // Check for the various File API support.
 if (window.File && window.FileReader && window.FileList && window.Blob) {
-  document.getElementById('inputfile').addEventListener('change', readSingleFile, false);
+document.getElementById('inputfile').addEventListener('change', readSingleFile, false);
 } else {
-  alert('The File APIs are not fully supported by your browser.');
+alert('The File APIs are not fully supported by your browser.');
 }
 
 
