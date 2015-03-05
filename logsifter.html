@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app>
+<html>
 <head lang="en">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -12,18 +12,23 @@
 
   <!-- Latest compiled JavaScript -->
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <!-- bootstrap file inputs-->
+  <script src="http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js"></script>
   <title>Log Sifter</title>
 </head>
 <body class="container-fluid">
-  <header>
-    <h1>logSifter</h1>
-  </header>
-  <div id="logWindow">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">logSifter</a>
+        <input type="file" id="inputfile"/>
+      </div>
+    </div>
+  </nav>
 
-  </div>
-  <footer>
-    <input type="file" id="inputfile"/>
-  </footer>
+<footer>
+
+</footer>
 
 </body>
 
@@ -50,8 +55,8 @@ function readSingleFile(evt) {
         tempLog.innerHTML = separatedLogList[i] + "<br/>";
         getEl("logWindow").appendChild(tempLog);
       }
-  };
-  r.readAsText(f);
+    };
+    r.readAsText(f);
   } else {
     alert("Failed to load file");
   }
@@ -64,6 +69,13 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
 } else {
   alert('The File APIs are not fully supported by your browser.');
 }
+
+
+
+
+
+
+
 
 
 </script>
