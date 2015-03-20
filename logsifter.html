@@ -17,35 +17,26 @@
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   }
 </style>
-
-<script src="http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js"></script>
 <title>Log Sifter</title>
 </head>
-<body class="container-fluid">
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">logSifter</a>
+<body>
+<nav>
+  <div>
+    <div>
+      <a href="#">logSifter</a>
       <input type="file" id="inputfile"/>
     </div>
   </div>
 </nav>
-
-<footer>
-
-</footer>
-
 </body>
 
 
 <script type="text/javascript">
 var print = function(output){
-console.log(output);
 };
 var getEl = function(el) {
 return document.getElementById(el);
 };
-//var logList = [];
 
 function readSingleFile(evt) {
 var f = evt.target.files[0];
@@ -74,14 +65,6 @@ document.getElementById('inputfile').addEventListener('change', readSingleFile, 
 } else {
 alert('The File APIs are not fully supported by your browser.');
 }
-
-
-
-
-
-
-
-
 
 </script>
 </html>
