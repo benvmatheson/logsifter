@@ -16,26 +16,56 @@
   * {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   }
+
+  body {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  nav {
+    background-color: rgb(0, 220, 0);
+    margin: 0px;
+    padding: .5em;
+  }
+
+  h1 {
+    float: left;
+  }
+
+  .clearfix:after {
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+  }
 </style>
 <title>Log Sifter</title>
 </head>
 <body>
 <nav>
   <div>
-    <div>
-      <a href="#">logSifter</a>
+    <div class="clearfix">
+      <h1 href="#">logSifter</h1>
       <input type="file" id="inputfile"/>
     </div>
   </div>
 </nav>
+
+<div id="logWindow"></div>
+
+<footer>
+
+</footer>
 </body>
 
 
 <script type="text/javascript">
 var print = function(output){
+  console.log(output);
 };
 var getEl = function(el) {
-return document.getElementById(el);
+  return document.getElementById(el);
 };
 
 function readSingleFile(evt) {
@@ -53,8 +83,19 @@ if (f) {
     }
   };
   r.readAsText(f);
+  r.onerror = function () {
+    var output = r.error.name;
+    if (r.error.message) {
+      output += ": " + r.error.message;
+    }
+    print(output);
+    if (r.error.name == "SecurityError") {
+      alert("Verify you have permissions to access the selected file");
+    }
+  };
 } else {
   alert("Failed to load file");
+
 }
 }
 
