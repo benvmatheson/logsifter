@@ -23,13 +23,17 @@
   }
 
   nav {
-    background-color: rgb(0, 220, 0);
+    background-color: #0c0;
     margin: 0px;
     padding: .5em;
+    color: white;
   }
 
   h1 {
     float: left;
+    padding: 0;
+    margin: 0;
+    position: relative;
   }
 
   .clearfix:after {
@@ -39,67 +43,166 @@
     height: 0;
     clear: both;
   }
+
+.btn_container {
+  float: right;
+	position: relative;
+	overflow: hidden;
+  width: 9em;
+  padding: 10px;
+  margin: 1em;
+  border: 1px solid #060;
+  border-radius: 10px;
+  background-color: #090;
+}
+
+.btn_container .real_btn {
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 5em;
+	font-size: 10px;
+	cursor: pointer;
+  cursor: hand;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  position: absolute;
+}
+
+.log_line {
+  cursor: pointer;
+  cursor: hand;
+}
+
+#searchlist_box {
+  display: none;
+  float: right;
+}
+
+#searchlist_button {
+  display: none;
+}
+
 </style>
 
 <title>Log Sifter</title>
 </head>
+
 <body>
-<nav>
-  <div>
-    <div class="clearfix">
-      <h1 href="#">logSifter</h1>
-      <input type="file" id="inputfile"/>
-    </div>
+<nav class="clearfix">
+  <h1 href="#">logSifter</h1>
+  <div class="btn_container" id="searchlist_button" onclick="applySearch()">
+    <span>Apply Search</span>
+    <button class="real_btn" id="applysearchlist"/>
+  </div>
+  <textarea cols="100" rows="5" id="searchlist_box"></textarea>
+  <div class="btn_container" id="choose_file_button">
+    <span>Choose Log File</span>
+    <input type="file" class="real_btn" id="inputfile"/>
   </div>
 </nav>
-
 <div id="logWindow"></div>
-
-<footer>
-
-</footer>
-
 </body>
 
 
+
+
+
+
 <script type="text/javascript">
+var logList = [];
+var selectedLog;
+
 var print = function(output){
   console.log(output);
 };
+
 var getEl = function(el) {
   return document.getElementById(el);
 };
-//var logList = [];
 
-function readSingleFile(evt) {
-var f = evt.target.files[0];
-if (f) {
-  var r = new FileReader();
-  r.onload = function(e) {
-    var contents = e.target.result;
-    //alert( "Got the file.n" + "name: " + f.name + "n"+"type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents.substr(1, contents.indexOf("n")));
-    var separatedLogList = contents.split("\n");
-    for (var i = 0; i < separatedLogList.length; i++) {
-      var tempLog = document.createElement("span");
-      tempLog.innerHTML = separatedLogList[i] + "<br/>";
-      getEl("logWindow").appendChild(tempLog);
-    }
+//Polyfill for includes
+if (!String.prototype.includes) {
+  String.prototype.includes = function() {'use strict';
+    return String.prototype.indexOf.apply(this, arguments) !== -1;
   };
-  r.readAsText(f);
-  r.onerror = function () {
-    var output = r.error.name;
-    if (r.error.message) {
-      output += ": " + r.error.message;
-    }
-    print(output);
-    if (r.error.name == "SecurityError") {
-      alert("Verify you have permissions to access the selected file");
-    }
-  };
-} else {
-  alert("Failed to load file");
-
 }
+
+function toggleVis(el) {
+  if (getComputedStyle(el, null).display == "none") {
+    el.style.display = 'block';
+
+  }
+
+  else {
+    el.style.display = "none";
+  }
+}
+
+function addLogListener(el) {
+  el.addEventListener("click", function(){
+    var value = el.innerHTML + "\n";
+    getEl("searchlist_box").value += value;
+    if (selectedLog) {
+      selectedLog.style.background = "white";
+    }
+    selectedLog = this;
+    this.style.background = "red";
+  });
+}
+
+function applySearch() {
+  var searchList = getEl("searchlist_box").value.split("\n");
+  for (var l = 0; l < logList.length; l++) {
+      for (var s = 0; s < searchList.length; s++) {
+        var log = escape(logList[l].innerHTML);
+        var searchString = escape(searchList[s]);
+        print(log);
+        print(searchString);
+        print(log.includes(searchString));
+        if (searchString !== "") {
+        if (log.includes(searchString)) {
+          logList[l].style.display = "none";
+        }
+      }
+      }
+  }
+}
+
+//Read in selected log file
+function readSingleFile(evt) {
+  var f = evt.target.files[0];
+  if (f) {
+    toggleVis(getEl("choose_file_button"));
+    toggleVis(getEl("searchlist_box"));
+    toggleVis(getEl("searchlist_button"));
+    var r = new FileReader();
+    r.onload = function(e) {
+      var contents = e.target.result;
+      var separatedLogList = contents.split("\n");
+      for (var i = 0; i < separatedLogList.length; i++) {
+        var tempLog = document.createElement("div");
+        tempLog.innerHTML = separatedLogList[i];
+        tempLog.classList.add("log_line");
+        getEl("logWindow").appendChild(tempLog);
+        logList.push(tempLog);
+        addLogListener(tempLog);
+      }
+    };
+    r.readAsText(f);
+    r.onerror = function () {
+      var output = r.error.name;
+      if (r.error.message) {
+        output += ": " + r.error.message;
+      }
+      print(output);
+      if (r.error.name == "SecurityError") {
+        alert("Verify you have permissions to access the selected file");
+      }
+    };
+  } else {
+    alert("Failed to load file");
+  }
 }
 
 
