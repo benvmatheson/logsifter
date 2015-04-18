@@ -155,25 +155,16 @@ var drawLog = (function() {
 
 
 //Hide all lines which match lines in the search list, show all others
-var applySearch = (function() {
-  var cursor;
-  var nextCursor;
-
-  return function() {
-    if (cursor === undefined) {cursor = logList.length - 1;}
-
-    else {
-      cursor -= 100;
-      if (cursor < 0) {cursor = 0;}
-
+function applySearch() {
+  var searchList = getEl("searchlist_box").value.split("\n");
+  if (searchList.length === 1 && searchList[0] === "") {
+    for (var l = 0; l < logList.length; l++) {
+      logList[l].style.display = "";
     }
-    nextCursor = cursor - 100;
-    if (nextCursor <= 0) {nextCursor = 0;}
-
-    var searchList = getEl("searchlist_box").value.split("\n");
-    for (var l = cursor; nextCursor; l--) {
+  }
+  else {
+    for (var l = logList.length -1; l >= 0; l--) {
       for (var s = 0; s < searchList.length; s++) {
-        print(l);
         var log = escape(logList[l].innerHTML);
         var searchString = escape(searchList[s]);
         if (searchString !== "") {
@@ -181,17 +172,13 @@ var applySearch = (function() {
             logList[l].style.display = "none";
           }
           else {
-            logList[l].style.display = "block";
+            logList[l].style.display = "";
           }
         }
       }
     }
-
-    if (cursor >= 0) {setTimeout(applySearch(), 4);}
-    else {cursor = logList.length;}
-    alert('done');
-  };
-})();
+  }
+}
 
 
 
