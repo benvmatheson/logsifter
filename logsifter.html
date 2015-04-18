@@ -74,6 +74,13 @@
   cursor: hand;
 }
 
+#navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
 #searchlist_box {
   display: none;
   float: right;
@@ -88,7 +95,7 @@
 </head>
 
 <body>
-<nav class="clearfix">
+<nav class="clearfix" id="navbar">
   <h1 href="#">logSifter</h1>
   <div class="btn_container" id="searchlist_button" onclick="applySearch()">
     <span>Apply Search</span>
@@ -105,9 +112,6 @@
 
 
 <script type="text/javascript">
-var logList = [];
-var selectedLog;
-
 var print = function(output){
   console.log(output);
 };
@@ -116,12 +120,80 @@ var getEl = function(el) {
   return document.getElementById(el);
 };
 
+var logList = [];
+var selectedLog;
+var logWindow = getEl("logWindow");
+
 //Polyfill for includes
 if (!String.prototype.includes) {
   String.prototype.includes = function() {'use strict';
     return String.prototype.indexOf.apply(this, arguments) !== -1;
   };
 }
+
+//Only draw a section of lines at a time, so the browser doesn't have to render all lines at once
+var drawLog = (function() {
+  var cursor = 0;
+  var nextCursor;
+
+  return function() {
+    nextCursor = cursor + 100;
+    if (nextCursor > logList.length) {
+      nextCursor = logList.length - 1;
+    }
+    for (var i = cursor; i < nextCursor; i++) {
+      logWindow.appendChild(logList[i]);
+    }
+
+    cursor = nextCursor;
+    if (cursor < logList.length -1) {
+      setTimeout(drawLog, 4);
+    }
+
+  };
+})();
+
+
+//Hide all lines which match lines in the search list, show all others
+var applySearch = (function() {
+  var cursor;
+  var nextCursor;
+
+  return function() {
+    if (cursor === undefined) {cursor = logList.length - 1;}
+
+    else {
+      cursor -= 100;
+      if (cursor < 0) {cursor = 0;}
+
+    }
+    nextCursor = cursor - 100;
+    if (nextCursor <= 0) {nextCursor = 0;}
+
+    var searchList = getEl("searchlist_box").value.split("\n");
+    for (var l = cursor; nextCursor; l--) {
+      for (var s = 0; s < searchList.length; s++) {
+        print(l);
+        var log = escape(logList[l].innerHTML);
+        var searchString = escape(searchList[s]);
+        if (searchString !== "") {
+          if (log.includes(searchString)) {
+            logList[l].style.display = "none";
+          }
+          else {
+            logList[l].style.display = "block";
+          }
+        }
+      }
+    }
+
+    if (cursor >= 0) {setTimeout(applySearch(), 4);}
+    else {cursor = logList.length;}
+    alert('done');
+  };
+})();
+
+
 
 function toggleVis(el) {
   if (getComputedStyle(el, null).display == "none") {
@@ -146,24 +218,6 @@ function addLogListener(el) {
   });
 }
 
-function applySearch() {
-  var searchList = getEl("searchlist_box").value.split("\n");
-  for (var l = 0; l < logList.length; l++) {
-      for (var s = 0; s < searchList.length; s++) {
-        var log = escape(logList[l].innerHTML);
-        var searchString = escape(searchList[s]);
-        print(log);
-        print(searchString);
-        print(log.includes(searchString));
-        if (searchString !== "") {
-        if (log.includes(searchString)) {
-          logList[l].style.display = "none";
-        }
-      }
-      }
-  }
-}
-
 //Read in selected log file
 function readSingleFile(evt) {
   var f = evt.target.files[0];
@@ -175,14 +229,16 @@ function readSingleFile(evt) {
     r.onload = function(e) {
       var contents = e.target.result;
       var separatedLogList = contents.split("\n");
-      for (var i = 0; i < separatedLogList.length; i++) {
+      var logListLength = separatedLogList.length;
+      for (var i = 0; i < logListLength; i++) {
         var tempLog = document.createElement("div");
         tempLog.innerHTML = separatedLogList[i];
         tempLog.classList.add("log_line");
-        getEl("logWindow").appendChild(tempLog);
         logList.push(tempLog);
         addLogListener(tempLog);
       }
+      drawLog();
+      logWindow.style.marginTop = (getEl('navbar').offsetHeight + 10) + "px";
     };
     r.readAsText(f);
     r.onerror = function () {
