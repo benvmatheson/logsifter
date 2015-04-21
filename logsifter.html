@@ -158,8 +158,8 @@ var drawLog = (function() {
 function applySearch() {
   var searchList = getEl("searchlist_box").value.split("\n");
   if (searchList.length === 1 && searchList[0] === "") {
-    for (var l = 0; l < logList.length; l++) {
-      logList[l].style.display = "";
+    for (var i = 0; i < logList.length; i++) {
+      logList[i].style.display = "";
     }
   }
   else {
@@ -170,6 +170,7 @@ function applySearch() {
         if (searchString !== "") {
           if (log.includes(searchString)) {
             logList[l].style.display = "none";
+            break;
           }
           else {
             logList[l].style.display = "";
