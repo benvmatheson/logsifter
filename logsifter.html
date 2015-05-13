@@ -74,6 +74,17 @@
   cursor: hand;
 }
 
+.input-search-string {
+  overflow: hidden;
+  width: 100%;
+  padding: 10px;
+  margin: .2em;
+  border: 1px solid #060;
+  border-radius: 10px;
+  background-color: #090;
+  color: white;
+}
+
 #navbar {
   position: fixed;
   width: 100%;
@@ -84,10 +95,8 @@
 #searchlist_box {
   display: none;
   float: right;
-}
-
-#searchlist_button {
-  display: none;
+  position: relative;
+  width: 30%;
 }
 
 </style>
@@ -97,11 +106,8 @@
 <body>
 <nav class="clearfix" id="navbar">
   <h1 href="#">logSifter</h1>
-  <div class="btn_container" id="searchlist_button" onclick="applySearch()">
-    <span>Apply Search</span>
-    <button class="real_btn" id="applysearchlist"/>
+  <div id="searchlist_box" class="clearfix">
   </div>
-  <textarea cols="100" rows="5" id="searchlist_box"></textarea>
   <div class="btn_container" id="choose_file_button">
     <span>Choose Log File</span>
     <input type="file" class="real_btn" id="inputfile"/>
@@ -153,32 +159,47 @@ var drawLog = (function() {
   };
 })();
 
-
 //Hide all lines which match lines in the search list, show all others
-function applySearch() {
-  var searchList = getEl("searchlist_box").value.split("\n");
-  if (searchList.length === 1 && searchList[0] === "") {
-    for (var i = 0; i < logList.length; i++) {
-      logList[i].style.display = "";
-    }
-  }
-  else {
+//If searchSting is passed in, only matching are removed. Nothing done with hidden
+//If searchlist_box is empty, all are shown
+function applySearch(searchString) {
+  if (typeof searchString === 'string') {
+    searchString = escape(searchString);
     for (var l = logList.length -1; l >= 0; l--) {
-      for (var s = 0; s < searchList.length; s++) {
+      if (searchString !== "") {
         var log = escape(logList[l].innerHTML);
-        var searchString = escape(searchList[s]);
-        if (searchString !== "") {
-          if (log.includes(searchString)) {
-            logList[l].style.display = "none";
-            break;
-          }
-          else {
-            logList[l].style.display = "";
-          }
+        if (log.includes(searchString)) {
+          logList[l].style.display = "none";
         }
       }
     }
   }
+  else {
+    var searchList = getEl("searchlist_box").children;
+    if (searchList.length !== 0) {
+      for (var l = logList.length -1; l >= 0; l--) {
+        for (var s = 0; s < searchList.length; s++) {
+          var log = escape(logList[l].innerHTML);
+          var searchString = escape(searchList[s].value);
+          if (searchString !== "") {
+            if (log.includes(searchString)) {
+              logList[l].style.display = "none";
+              break;
+            }
+            else {
+              logList[l].style.display = "";
+            }
+          }
+        }
+      }
+    }
+    else {
+      for (var l = logList.length -1; l >= 0; l--) {
+        logList[l].style.display = "";
+      }
+    }
+  }
+  offsetLogwindow();
 }
 
 
@@ -196,8 +217,8 @@ function toggleVis(el) {
 
 function addLogListener(el) {
   el.addEventListener("click", function(){
-    var value = el.innerHTML + "\n";
-    getEl("searchlist_box").value += value;
+    var value = el.innerHTML;
+    addSearchString(value);
     if (selectedLog) {
       selectedLog.style.background = "white";
     }
@@ -206,13 +227,36 @@ function addLogListener(el) {
   });
 }
 
+function addSearchString(value) {
+  var searchString = document.createElement("input");
+  searchString.addEventListener('change', searchChange, false);
+  searchString.className += "input-search-string";
+  if (window.getSelection().toString()) {
+    value = window.getSelection().toString();
+  }
+  searchString.value = value;
+  getEl("searchlist_box").appendChild(searchString);
+  applySearch(value);
+}
+
+function searchChange() {
+  if (this.value === "") {
+    this.parentNode.removeChild(this);
+  }
+  applySearch();
+}
+
+
+function offsetLogwindow() {
+  logWindow.style.marginTop = (getEl('navbar').offsetHeight + 10) + "px";
+}
+
 //Read in selected log file
 function readSingleFile(evt) {
   var f = evt.target.files[0];
   if (f) {
     toggleVis(getEl("choose_file_button"));
     toggleVis(getEl("searchlist_box"));
-    toggleVis(getEl("searchlist_button"));
     var r = new FileReader();
     r.onload = function(e) {
       var contents = e.target.result;
@@ -226,7 +270,7 @@ function readSingleFile(evt) {
         addLogListener(tempLog);
       }
       drawLog();
-      logWindow.style.marginTop = (getEl('navbar').offsetHeight + 10) + "px";
+      offsetLogwindow();
     };
     r.readAsText(f);
     r.onerror = function () {
