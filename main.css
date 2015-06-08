@@ -68,9 +68,10 @@
 }
 
 .input-search-string {
-  float: right;
+  display: inline-block;
+  text-align: left;
+  font-size: 100%;
   overflow: hidden;
-  width: 90%;
   padding: 10px;
   margin: .2em;
   border: 1px solid #060;
@@ -87,6 +88,7 @@
 }
 
 #searchlist_box {
+  text-align: right;
   display: none;
   float: right;
   position: relative;
