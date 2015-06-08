@@ -60,7 +60,7 @@ function applySearch(searchString) {
       for (var l = logList.length -1; l >= 0; l--) {
         for (var s = 0; s < searchList.length; s++) {
           var log = escape(logList[l].innerHTML);
-          var searchString = escape(searchList[s].value);
+          var searchString = escape(searchList[s].innerHTML);
           if (searchString !== "") {
             if (log.includes(searchString)) {
               logList[l].style.display = "none";
@@ -108,19 +108,21 @@ function addLogListener(el) {
 }
 
 function addSearchString(value) {
-  var searchString = document.createElement("input");
-  searchString.addEventListener('change', searchChange, false);
+  var searchString = document.createElement("div");
+  searchString.addEventListener('blur', searchChange, false);
   searchString.className += "input-search-string";
+  searchString.setAttribute("contentEditable", true);
   if (window.getSelection().toString()) {
     value = window.getSelection().toString();
   }
-  searchString.value = value;
+  searchString.innerHTML = value;
   getEl("searchlist_box").appendChild(searchString);
   applySearch(value);
 }
 
+//Run when a search string is changed by the user
 function searchChange() {
-  if (this.value === "") {
+  if ((this.innerHTML === "") || (this.innerHTML === "<br>")) {
     this.parentNode.removeChild(this);
   }
   applySearch();
