@@ -68,8 +68,9 @@
 }
 
 .input-search-string {
+  float: right;
   overflow: hidden;
-  width: 100%;
+  width: 90%;
   padding: 10px;
   margin: .2em;
   border: 1px solid #060;
@@ -89,5 +90,7 @@
   display: none;
   float: right;
   position: relative;
-  width: 30%;
+  overflow-y: auto;
+  width: 60%;
+  max-height: 20em;
 }
